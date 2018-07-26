@@ -1,0 +1,57 @@
+import sqlite3
+import os
+
+# copied from equities-schema.sql
+SCHEMA_SQL = """
+CREATE TABLE UPLOAD_JOB (
+    UPLOAD_JOB_ID INTEGER NOT NULL PRIMARY KEY,
+    JOB_TYPE TEXT NOT NULL,
+    START_TIME NUMERIC NOT NULL,
+    END_TIME NUMERIC NOT NULL,
+    STATUS TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS MARKET (
+    MARKET_ID INTEGER NOT NULL PRIMARY KEY,
+    MARKET_NAME TEXT NOT NULL,
+    MARKET_LOCATION TEXT NOT NULL    
+);
+
+CREATE TABLE IF NOT EXISTS STOCK_QUOTE (
+    QUOTE_ID INTEGER NOT NULL PRIMARY KEY,
+    ISIN_CODE TEXT NOT NULL,
+    TRADING_DATE NUMERIC NOT NULL,
+    OPEN NUMERIC NOT NULL,
+    HIGH NUMERIC NOT NULL,
+    LOW NUMERIC NOT NULL,
+    CLOSE NUMERIC NOT NULL,
+    LAST NUMERIC NOT NULL,
+    PREVCLOSE NUMERIC NOT NULL,
+    NO_TRADES INTEGER NOT NULL,
+    NO_OF_SHARES INTEGER NOT NULL,
+    NET_TURNOVER NUMERIC NOT NULL,
+    TDCLOINDI NUMERIC NOT NULL,
+    MARKET_ID INTEGER NOT NULL,
+    MARKET_STOCK_CODE TEXT NOT NULL,
+    UPLOAD_JOB_ID INTEGER NOT NULL,
+    FOREIGN KEY (MARKET_ID) REFERENCES MARKET(MARKET_ID),
+    FOREIGN KEY (UPLOAD_JOB_ID) REFERENCES UPLOAD_JOB(UPLOAD_JOB_ID)
+);
+"""
+
+
+def main(db):
+    conn = sqlite3.connect(db)
+    c = conn.cursor()
+
+    stmts = SCHEMA_SQL.split(';')
+    for stmt in stmts:
+        c.execute(stmt)
+        conn.commit()
+    conn.close()
+
+
+if __name__ == "__main__":
+    homefolder = os.path.expanduser('~')
+    equitiesdb = os.path.join(homefolder, ".equities/equities.db")
+main(equitiesdb)

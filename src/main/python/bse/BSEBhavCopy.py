@@ -5,9 +5,10 @@ from datetime import timedelta
 import os.path
 import urllib.request
 import zipfile
+import os
 
 BHAVCOPY_EQUITIES_ISIN_URL = 'http://www.bseindia.com/download/BhavCopy/Equity/{}'
-NUM_DAYS_TO_DOWNLOAD = 60
+NUM_DAYS_TO_DOWNLOAD = 600
 
 
 def get_equity_file(file_date, folder):
@@ -15,9 +16,11 @@ def get_equity_file(file_date, folder):
         print(file_date, 'is for a weekend, will not download.')
         return None, None
 
-    fname = 'EQ_ISINCODE_{}.ZIP'.format(file_date.strftime('%d%m%y'))
-    file_url = BHAVCOPY_EQUITIES_ISIN_URL.format(fname)
+    fname = 'EQ_ISINCODE_{}.CSV'.format(file_date.strftime('%d%m%y'))
+    zip_fname = 'EQ_ISINCODE_{}.ZIP'.format(file_date.strftime('%d%m%y'))
+    file_url = BHAVCOPY_EQUITIES_ISIN_URL.format(zip_fname)
     file_location = folder + '/' + fname
+    zip_file_location = folder + '/' + zip_fname
 
     print(file_url, '->', file_location)
     if os.path.isfile(file_location):
@@ -25,16 +28,18 @@ def get_equity_file(file_date, folder):
     else:
         try:
             # Download the file from `file_url` and save it locally under `file_location`:
-            urllib.request.urlretrieve(file_url, file_location)
-            print('Downloaded file', file_url, 'at', file_location)
-            zip_ref = zipfile.ZipFile(file_location, 'r')
+            urllib.request.urlretrieve(file_url, zip_file_location)
+            print('Downloaded file', file_url, 'at', zip_file_location)
+            zip_ref = zipfile.ZipFile(zip_file_location, 'r')
             zip_ref.extractall(folder)
             zip_ref.close()
-            print('Extracted zip file')
+            os.remove(zip_file_location)
+            print('Extracted Zip file, and then deleted it.')
         except urllib.error.HTTPError as e:
             print('Unable to download file', file_url, 'due to error -', e)
 
     return file_url, file_location
+
 
 if __name__ == "__main__":
     if len(sys.argv) <= 1:
