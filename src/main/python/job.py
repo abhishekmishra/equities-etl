@@ -7,9 +7,10 @@ class Job:
     An object representing an entry in the job table.
     """
 
-    def __init__(self, job_type):
+    def __init__(self, job_type, input_src):
         self.id = None
         self.job_type = job_type
+        self.input_src = input_src
         self.start_time = datetime.now()
         self.end_time = None
         self.status = 'STARTED'
@@ -26,8 +27,8 @@ class Job:
     def start(self):
         conn = get_conn()
         c = conn.cursor()
-        res = c.execute('INSERT INTO JOB(JOB_TYPE, START_TIME, STATUS, PROGRESS) values (?, ?, ?, ?)',
-                        (self.job_type, self.start_time, self.status, self.progress))
+        res = c.execute('INSERT INTO JOB(JOB_TYPE, START_TIME, STATUS, PROGRESS, INPUT) values (?, ?, ?, ?, ?)',
+                        (self.job_type, self.start_time, self.status, self.progress, self.input_src))
         print('Created Job Id -> ' + str(c.lastrowid))
         self.id = c.lastrowid
         conn.commit()
@@ -59,7 +60,7 @@ class Job:
 
 
 if __name__ == "__main__":
-    j = Job('dummy')
+    j = Job('dummy', '/dev/null')
     j.start()
     j.update_progress(25.0)
     j.update_progress(75.0)
