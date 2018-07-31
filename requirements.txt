@@ -4,3 +4,5 @@ pybuilder
 requests
 sqlalchemy
 jupyter
+beautifulsoup4
+matplotlib
