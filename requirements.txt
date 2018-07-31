@@ -3,3 +3,4 @@ numpy
 pybuilder
 requests
 sqlalchemy
+jupyter
